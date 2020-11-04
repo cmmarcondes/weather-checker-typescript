@@ -1,25 +1,35 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useCallback, useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import './App.css';
+import Container from './component/Container';
+import WeatherService from './service/weatherservice'
+const  App = () => {
+  const [weather, setWeather] = useState();
+  const [notFound, setNotFound] = useState(false);
+  const [input, setInput] = useState('');
+  const history = useHistory();
+  const get_weather = useCallback(async()=>{
+    const weather_data = await WeatherService.getWeather(null, input);
+    weather_data.cod === 200 ? setWeather(weather_data) : setNotFound(true)
+  },[input])
 
-function App() {
+  const searchHandler = (e: any) => {
+    if(e.key === 'Enter'){
+      get_weather();
+    }
+  }
+
+  const inputHandler = (value: string) => {
+    setInput(value);
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+    {
+      notFound ? history.push('/404') : <Container inputHandler={inputHandler} searchHandler={searchHandler} weather={weather} />
+    }
+    
+  </>
   );
 }
 
